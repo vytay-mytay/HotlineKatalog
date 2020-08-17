@@ -1,3 +1,6 @@
 /.vs
 /HotlineKatalog/obj
 /HotlineKatalog/bin
+/HotlineKatalog.Model/obj
+/HotlineKatalog.Service/obj
+/HotlineKatalog.DAL/obj
