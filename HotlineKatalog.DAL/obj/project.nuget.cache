@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "gP5MbyIjlG0u7g7Sy5R9xgpIC19AhuXbBMD+iI+nISjkX1oeba/zv4TmbGl+3pR2E5SM5/8AFCZ+8WOkxcNUvw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Шашлык с пивасом\\Source\\Repos\\vytay-mytay\\HotlineKatalog\\HotlineKatalog.DAL\\HotlineKatalog.DAL.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Шашлык с пивасом\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\Шашлык с пивасом\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
