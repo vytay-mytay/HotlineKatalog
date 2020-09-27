@@ -4,3 +4,9 @@
 /HotlineKatalog.Model/obj
 /HotlineKatalog.Service/obj
 /HotlineKatalog.DAL/obj
+/HotlineKatalog.Domain/bin
+/HotlineKatalog.Domain/obj
+/HotlineKatalog.Model/bin
+/HotlineKatalog.Service/bin
+/HotlineKatalog.Websockets/obj
+/HotlineKatalog.Websockets/bin
