@@ -3,6 +3,8 @@ using HotlineKatalog.DAL.Abstract;
 using HotlineKatalog.DAL.Repository;
 using HotlineKatalog.DAL.UnitOfWork;
 using HotlineKatalog.Services.AutoMapperConfig;
+using HotlineKatalog.Services.Interface;
+using HotlineKatalog.Services.Service;
 using HotlineKatalog.WebSockets.Extentions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,7 +15,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
@@ -53,7 +57,7 @@ namespace HotlineKatalog
 
             #region Business logic
 
-            //services.AddTransient<IAccountService, AccountService>();
+            services.AddTransient<IParseService, EldoradoParseService>();
             //services.AddScoped<IUserService, UserService>();
             //services.AddScoped<IChatService, ChatService>();
             //services.AddTransient<IImageService, ImageService>();
@@ -110,14 +114,62 @@ namespace HotlineKatalog
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
+
+            services.AddRouting();
+
+            #region Scheduled tasks
+            // Scheduled tasks
+            // TODO: Remove if not used ScheduledTasks
+            //services.AddSingleton<IScheduledTask, OneWeekAfterRegistration>();
+            //services.AddSingleton<IScheduledTask, StatisticsUpdate>();
+            //services.AddSingleton<IScheduledTask, EverydayUpdate>();
+            //services.AddSingleton<IScheduledTask, TopAuthorsRating>();
+            //services.AddSingleton<IScheduledTask, CleanTrash>();
+            //services.AddSingleton<IScheduledTask, CleanFiles>();
+
+            //// Remove this block when testing end
+            //// ***
+            //services.AddSingleton<TopAuthorsRating>();
+            //services.AddSingleton<CleanTrash>();
+            //services.AddSingleton<EverydayUpdate>();
+            //services.AddSingleton<StatisticsUpdate>();
+            //services.AddSingleton<CleanFiles>();
+            //services.AddSingleton<Func<string, IScheduledTask>>(serviceProvider => key =>
+            //{
+            //    return key switch
+            //    {
+            //        nameof(TopAuthorsRating) => serviceProvider.GetService<TopAuthorsRating>(),
+            //        nameof(CleanTrash) => serviceProvider.GetService<CleanTrash>(),
+            //        nameof(EverydayUpdate) => serviceProvider.GetService<EverydayUpdate>(),
+            //        nameof(StatisticsUpdate) => serviceProvider.GetService<StatisticsUpdate>(),
+            //        nameof(CleanFiles) => serviceProvider.GetService<CleanFiles>(),
+            //        _ => serviceProvider.GetService<StatisticsUpdate>(),
+            //    };
+            //});
+            //// ***
+
+            //services.AddScheduler((sender, args) =>
+            //{
+            //    Console.Write(args.Exception.Message);
+            //    args.SetObserved();
+            //});
+
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseDefaultFiles();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+
+            if (!Directory.Exists("Logs"))
+            {
+                Directory.CreateDirectory("Logs");
             }
 
             app.UseHttpsRedirection();
@@ -132,6 +184,101 @@ namespace HotlineKatalog
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "HotlineKatalog");
             });
+
+            app.UseStaticFiles();
+
+
+            #region Error handler
+
+            // Different middleware for api and ui requests  
+            //app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), appBuilder =>
+            //{
+            //    var localizer = serviceProvider.GetService<IStringLocalizer<ErrorsResource>>();
+            //    var logger = loggerFactory.CreateLogger("GlobalErrorHandling");
+
+            //    // Exception handler - show exception data in api response
+            //    appBuilder.UseExceptionHandler(new ExceptionHandlerOptions
+            //    {
+            //        ExceptionHandler = async context =>
+            //        {
+            //            var errorModel = new ErrorResponseModel(localizer);
+            //            var result = new ContentResult();
+
+            //            var exception = context.Features.Get<IExceptionHandlerPathFeature>();
+
+            //            if (exception.Error is NotConfirmEmailException)
+            //            {
+            //                var ex = (NotConfirmEmailException)exception.Error;
+
+            //                result = errorModel.Error(ex);
+            //            }
+            //            else if (exception.Error is CustomException)
+            //            {
+            //                var ex = (CustomException)exception.Error;
+
+            //                result = errorModel.Error(ex);
+            //            }
+            //            else
+            //            {
+            //                var message = exception.Error.InnerException?.Message ?? exception.Error.Message;
+            //                logger.LogError($"{exception.Path} - {message}");
+
+            //                errorModel.AddError("general", message);
+            //                result = errorModel.InternalServerError(env.IsDevelopment() ? exception.Error.StackTrace : null);
+            //            }
+
+            //            context.Response.StatusCode = result.StatusCode.Value;
+            //            context.Response.ContentType = result.ContentType;
+
+            //            await context.Response.WriteAsync(result.Content);
+            //        }
+            //    });
+
+            //    // Handles responses with status codes (correctly executed requests, without any exceptions)
+            //    appBuilder.UseStatusCodePages(async context =>
+            //    {
+            //        string message = "";
+
+            //        List<ErrorKeyValue> errors = new List<ErrorKeyValue>();
+
+            //        switch (context.HttpContext.Response.StatusCode)
+            //        {
+            //            case 400:
+            //                message = "Bad Request";
+            //                break;
+            //            case 401:
+            //                message = "Unauthorized";
+            //                errors.Add(new ErrorKeyValue("token", "Token invalid"));
+            //                break;
+            //            case 403:
+            //                message = "Forbidden";
+            //                break;
+            //            case 404:
+            //                message = "Not found";
+            //                break;
+            //            case 500:
+            //                message = "Internal Server Error";
+            //                break;
+            //        }
+
+            //        context.HttpContext.Response.ContentType = "application/json";
+            //        await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorResponseModel(localizer)
+            //        {
+            //            Code = message,
+            //            StackTrace = "",
+            //            Errors = errors
+            //        }, new JsonSerializerSettings { Formatting = Formatting.Indented }));
+            //    });
+            //});
+
+            //app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api"), appBuilder =>
+            //{
+            //    appBuilder.UseExceptionHandler("/Error");
+            //    appBuilder.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
+            //});
+
+            #endregion
+
 
             app.UseEndpoints(endpoints =>
             {

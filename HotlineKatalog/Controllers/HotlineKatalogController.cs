@@ -1,3 +1,4 @@
+using HotlineKatalog.Services.Interface;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
@@ -13,6 +14,12 @@ namespace HotlineKatalog.Controllers
     [ApiController]
     public class HotlineKatalogController : Controller
     {
+        private readonly IParseService _parseService;
+
+        public HotlineKatalogController(IParseService parseService)
+        {
+            _parseService = parseService;
+        }
 
         // GET api/v1/chats/users
         /// <summary>
@@ -29,39 +36,41 @@ namespace HotlineKatalog.Controllers
         [HttpGet]
         public async Task<IActionResult> GetChatUsers(string link)
         {
-            WebResponse response = null;
-            StreamReader reader = null;
+            var test2 = await _parseService.Parse();
 
-            string test = "";
+            //WebResponse response = null;
+            //StreamReader reader = null;
 
-            try
-            {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(link);
-                request.Method = "GET";
-                request.ContentType = "text/html;charset=utf-8";
-                //request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
-                response = await request.GetResponseAsync();
-                reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                test = await reader.ReadToEndAsync();
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if (reader != null)
-                    reader.Close();
-                if (response != null)
-                    response.Close();
-            }
+            //string test = "";
 
-            var test2 = await GetContentFromTagAsync(test, link);
+            //try
+            //{
+            //    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(link);
+            //    request.Method = "GET";
+            //    request.ContentType = "text/html;charset=utf-8";
+            //    //request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
+            //    response = await request.GetResponseAsync();
+            //    reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+            //    test = await reader.ReadToEndAsync();
+            //}
+            //catch
+            //{
+            //    throw;
+            //}
+            //finally
+            //{
+            //    if (reader != null)
+            //        reader.Close();
+            //    if (response != null)
+            //        response.Close();
+            //}
+
+            //var test2 = await GetContentFromTagAsync(test);
 
             return Ok(test2);
         }
 
-        private async Task<object> GetContentFromTagAsync(string html, string link)
+        private async Task<object> GetContentFromTagAsync(string html)
         {
             var goodTag = "goods-item-content";
             var titleTag = "title lp";
@@ -108,7 +117,7 @@ namespace HotlineKatalog.Controllers
                 i++;
             }
 
-            return new { Title = title, Body = body.ToString(), Url = link, Iterator = i };
+            return new { Title = title, Body = body.ToString(), Iterator = i };
             //});
         }
 

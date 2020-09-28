@@ -8,13 +8,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotlineKatalog.Services", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotlineKatalog.Models", "HotlineKatalog.Model\HotlineKatalog.Models.csproj", "{ABD706A4-7A4F-4A76-8394-FE7778FBD9DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotlineKatalog.Websockets", "HotlineKatalog.Websockets\HotlineKatalog.Websockets.csproj", "{AC36001F-859C-444F-9037-37FB790C0BAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotlineKatalog.Websockets", "HotlineKatalog.Websockets\HotlineKatalog.Websockets.csproj", "{AC36001F-859C-444F-9037-37FB790C0BAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotlineKatalog.Common", "HotlineCataloge.Common\HotlineKatalog.Common.csproj", "{B38F2446-28BC-4735-A1C9-70B0ED4C8B4C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotlineKatalog.DAL", "HotlineKatalog.DAL\HotlineKatalog.DAL.csproj", "{2017F17A-E53F-4478-B26C-7863439BE805}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotlineKatalog.DAL", "HotlineKatalog.DAL\HotlineKatalog.DAL.csproj", "{2017F17A-E53F-4478-B26C-7863439BE805}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotlineKatalog.Domain", "HotlineKatalog.Domain\HotlineKatalog.Domain.csproj", "{6D871490-AE73-408B-AF33-C3558A33D2E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotlineKatalog.Domain", "HotlineKatalog.Domain\HotlineKatalog.Domain.csproj", "{6D871490-AE73-408B-AF33-C3558A33D2E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,10 +36,6 @@ Global
 		{AC36001F-859C-444F-9037-37FB790C0BAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC36001F-859C-444F-9037-37FB790C0BAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC36001F-859C-444F-9037-37FB790C0BAA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B38F2446-28BC-4735-A1C9-70B0ED4C8B4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B38F2446-28BC-4735-A1C9-70B0ED4C8B4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B38F2446-28BC-4735-A1C9-70B0ED4C8B4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B38F2446-28BC-4735-A1C9-70B0ED4C8B4C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2017F17A-E53F-4478-B26C-7863439BE805}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2017F17A-E53F-4478-B26C-7863439BE805}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2017F17A-E53F-4478-B26C-7863439BE805}.Release|Any CPU.ActiveCfg = Release|Any CPU

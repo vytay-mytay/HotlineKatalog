@@ -17,6 +17,8 @@ namespace HotlineKatalog.Domain.Entities
 
         public string NextPageTag { get; set; }
 
+        public string GoodUrlTag { get; set; }
+
         #endregion
 
         #region Navigation properties
