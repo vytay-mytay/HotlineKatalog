@@ -57,7 +57,7 @@ namespace HotlineKatalog
 
             #region Business logic
 
-            services.AddTransient<IParseService, EldoradoParseService>();
+            services.AddTransient<IParseService, ComfyParseService>();
             //services.AddScoped<IUserService, UserService>();
             //services.AddScoped<IChatService, ChatService>();
             //services.AddTransient<IImageService, ImageService>();
