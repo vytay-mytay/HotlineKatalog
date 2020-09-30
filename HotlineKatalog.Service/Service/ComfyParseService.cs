@@ -3,12 +3,14 @@ using HotlineKatalog.Domain.Entities;
 using HotlineKatalog.Services.Interface;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
+using PuppeteerSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HotlineKatalog.Services.Service
@@ -16,14 +18,18 @@ namespace HotlineKatalog.Services.Service
     public class ComfyParseService : IParseService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly Random _random;
 
         public ComfyParseService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            _random = new Random();
         }
 
         public async Task<object> Parse()
         {
+            var brovser = await StartBrovser();
+
             var shop = _unitOfWork.Repository<Shop>().Get(x => x.Name == "Comfy")
                                                         .Include(x => x.Categories)
                                                             .ThenInclude(x => x.Category)
@@ -31,28 +37,39 @@ namespace HotlineKatalog.Services.Service
                                                         .FirstOrDefault();
 
             List<string> pageLinks = null;
-            List<string> names = null;
+            var names = new List<string>();
 
             foreach (var category in shop.Categories)
             {
-                string page = await GetHtml(category.Url);
+                string page = await GetHtml(brovser, category.Url);
 
-                var bodyTags = await GetPageItems(page, shop.Tags.NameTag);
+                if (page.Contains("NOINDEX, NOFOLLOW"))
+                    continue;
+
+                var bodyTags = await GetPageItems(page, shop.Tags.PageItemTag);
                 pageLinks = await GetLinks(bodyTags, shop.Tags.GoodUrlTag);
 
                 foreach (var itemLink in pageLinks)
                 {
-                    var itemHtml = await GetHtml(itemLink);
+                    var itemHtml = await GetHtml(brovser, itemLink);
 
                     var document = new HtmlDocument();
                     document.LoadHtml(itemHtml);
 
-                    // get name
-                    await GetName(document.DocumentNode.Descendants());
-                    // get characteristics
-                }
+                    if (itemHtml.Contains("NOINDEX, NOFOLLOW"))
+                        continue;
 
-                names = await GetName(bodyTags, shop.Tags.GoodUrlTag, category.Category.Name);
+                    // get name
+                    names.Add(await GetName(document.DocumentNode.Descendants(), shop.Tags.NameTag, category.Category.Name));
+                    // get price
+                    // get characteristics
+
+                }
+                var pages = await brovser.PagesAsync();
+                foreach (var item in pages)
+                {
+                    await item.CloseAsync();
+                }
             }
 
             return new { pageLinks, names };
@@ -77,14 +94,14 @@ namespace HotlineKatalog.Services.Service
             return links;
         }
 
-        public async Task<List<string>> GetName(IEnumerable<HtmlNode> bodyTags, string nameTag, string categoryName)
+        public async Task<string> GetName(IEnumerable<HtmlNode> bodyTags, string nameTag, string categoryName)
         {
             // select from nodes
             // all nodel with class {nameTag}
             // take from every node InetText and replace {categoryName} and trim
-            var names = bodyTags.Select(x => x.Descendants().Where(x => x.HasClass(nameTag)).FirstOrDefault().InnerText.Replace(categoryName, "").Trim()).ToList();
+            var name = bodyTags.FirstOrDefault(x => x.HasClass(nameTag)).InnerHtml.Replace(categoryName, "").Trim();
 
-            return names;
+            return name;
         }
 
         public async Task<string> GetHtml(string link)
@@ -117,6 +134,27 @@ namespace HotlineKatalog.Services.Service
             }
 
             return html;
+        }
+
+        public async Task<string> GetHtml(Browser brovser, string link)
+        {
+            var page = await brovser.NewPageAsync();
+            Thread.Sleep(_random.Next(3000, 5000));
+            await page.GoToAsync(link);
+            Thread.Sleep(_random.Next(5000, 10000));
+            var html = await page.GetContentAsync();
+            return html;
+        }
+
+        public async Task<Browser> StartBrovser()
+        {
+            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                Headless = false
+            });
+
+            return browser;
         }
 
         public async Task<object> GetPrice()

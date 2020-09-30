@@ -15,9 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
@@ -51,6 +49,7 @@ namespace HotlineKatalog
             //services.AddSingleton<TemporaryDataManager>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            //services.AddSingleton<BrowserService>();
             //services.AddScoped<IJWTService, JWTService>();
 
             #endregion
