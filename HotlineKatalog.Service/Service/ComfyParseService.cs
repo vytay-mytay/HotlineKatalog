@@ -41,34 +41,47 @@ namespace HotlineKatalog.Services.Service
 
             foreach (var category in shop.Categories)
             {
-                string page = await GetHtml(brovser, category.Url);
+                var doing = true;
+                string pageUrl = category.Url;
 
-                if (page.Contains("NOINDEX, NOFOLLOW"))
-                    continue;
-
-                var bodyTags = await GetPageItems(page, shop.Tags.PageItemTag);
-                pageLinks = await GetLinks(bodyTags, shop.Tags.GoodUrlTag);
-
-                foreach (var itemLink in pageLinks)
+                while (doing)
                 {
-                    var itemHtml = await GetHtml(brovser, itemLink);
+                    string page = await GetHtml(brovser, pageUrl);
 
-                    var document = new HtmlDocument();
-                    document.LoadHtml(itemHtml);
+                    //if (page.Contains("NOINDEX, NOFOLLOW"))
+                    //    continue;
 
-                    if (itemHtml.Contains("NOINDEX, NOFOLLOW"))
-                        continue;
+                    var bodyTags = await GetPageItems(page, shop.Tags.PageItemTag);
 
-                    // get name
-                    names.Add(await GetName(document.DocumentNode.Descendants(), shop.Tags.NameTag, category.Category.Name));
-                    // get price
-                    // get characteristics
+                    if (bodyTags.Any())
+                    {
+                        pageLinks = await GetLinks(bodyTags, shop.Tags.GoodUrlTag);
 
-                }
-                var pages = await brovser.PagesAsync();
-                foreach (var item in pages)
-                {
-                    await item.CloseAsync();
+                        foreach (var itemLink in pageLinks)
+                        {
+                            var itemHtml = await GetHtml(brovser, itemLink);
+
+                            var document = new HtmlDocument();
+                            document.LoadHtml(itemHtml);
+
+                            if (itemHtml.Contains("NOINDEX, NOFOLLOW"))
+                                continue;
+
+                            // get name
+                            names.Add(await GetName(document.DocumentNode.Descendants(), shop.Tags.NameTag, category.Category.Name));
+                            // get price
+                            // get characteristics
+                        }
+                        pageUrl = await GetNextPageLink(page, shop.Tags.NextPageTag);
+                    }
+                    else
+                        doing = false;
+
+                    var pages = await brovser.PagesAsync();
+                    foreach (var item in pages.Take(pages.Length - 1))
+                    {
+                        await item.CloseAsync();
+                    }
                 }
             }
 
@@ -79,9 +92,21 @@ namespace HotlineKatalog.Services.Service
         {
             var document = new HtmlDocument();
             document.LoadHtml(html);
-            var bodyTags = document.DocumentNode.Descendants().Where(x => x.HasClass(goodUrlTag) && !x.HasClass("_next")).ToList();
+            var bodyTags = document.DocumentNode.Descendants().Where(x => x.HasClass(goodUrlTag) && !x.HasClass("_next") && !x.HasClass("js-more-button")).ToList();
 
             return bodyTags;
+        }
+
+        public async Task<string> GetNextPageLink(string html, string nextPageTag)
+        {
+            var document = new HtmlDocument();
+            document.LoadHtml(html);
+
+            var nextPage = document.DocumentNode.Descendants().FirstOrDefault(x => x.HasClass(nextPageTag));
+
+            var link = nextPage.Descendants().FirstOrDefault(f => f.Attributes.Any(a => a.Name == "href")).GetAttributeValue("href", string.Empty);
+
+            return link;
         }
 
         public async Task<List<string>> GetLinks(IEnumerable<HtmlNode> bodyTags, string goodUrlTag)
