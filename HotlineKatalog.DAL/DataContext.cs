@@ -21,5 +21,6 @@ namespace HotlineKatalog.DAL
         public virtual DbSet<ShopCategory> ShopCategories { get; set; }
         public virtual DbSet<ShopTags> ShopTags { get; set; }
         public virtual DbSet<ShopGood> ShopGoods { get; set; }
+        public virtual DbSet<Producer> Producers { get; set; }
     }
 }

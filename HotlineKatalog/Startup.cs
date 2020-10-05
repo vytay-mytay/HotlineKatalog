@@ -2,10 +2,14 @@ using HotlineKatalog.DAL;
 using HotlineKatalog.DAL.Abstract;
 using HotlineKatalog.DAL.Repository;
 using HotlineKatalog.DAL.UnitOfWork;
+using HotlineKatalog.ScheduledTasks;
 using HotlineKatalog.Services.AutoMapperConfig;
-using HotlineKatalog.Services.Interface;
-using HotlineKatalog.Services.Service;
+using HotlineKatalog.Services.Interfaces;
+using HotlineKatalog.Services.Job;
+using HotlineKatalog.Services.Services;
 using HotlineKatalog.WebSockets.Extentions;
+using HotlineKatalog.WebSockets.Handlers;
+using HotlineKatalog.WebSockets.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -56,7 +60,8 @@ namespace HotlineKatalog
 
             #region Business logic
 
-            services.AddTransient<IParseService, ComfyParseService>();
+            services.AddTransient<IComfyParseService, ComfyParseService>();
+            services.AddTransient<IAddDBService, AddDBService>();
             //services.AddScoped<IUserService, UserService>();
             //services.AddScoped<IChatService, ChatService>();
             //services.AddTransient<IImageService, ImageService>();
@@ -117,47 +122,19 @@ namespace HotlineKatalog
             services.AddRouting();
 
             #region Scheduled tasks
-            // Scheduled tasks
-            // TODO: Remove if not used ScheduledTasks
-            //services.AddSingleton<IScheduledTask, OneWeekAfterRegistration>();
-            //services.AddSingleton<IScheduledTask, StatisticsUpdate>();
-            //services.AddSingleton<IScheduledTask, EverydayUpdate>();
-            //services.AddSingleton<IScheduledTask, TopAuthorsRating>();
-            //services.AddSingleton<IScheduledTask, CleanTrash>();
-            //services.AddSingleton<IScheduledTask, CleanFiles>();
-
-            //// Remove this block when testing end
-            //// ***
-            //services.AddSingleton<TopAuthorsRating>();
-            //services.AddSingleton<CleanTrash>();
-            //services.AddSingleton<EverydayUpdate>();
-            //services.AddSingleton<StatisticsUpdate>();
-            //services.AddSingleton<CleanFiles>();
-            //services.AddSingleton<Func<string, IScheduledTask>>(serviceProvider => key =>
-            //{
-            //    return key switch
-            //    {
-            //        nameof(TopAuthorsRating) => serviceProvider.GetService<TopAuthorsRating>(),
-            //        nameof(CleanTrash) => serviceProvider.GetService<CleanTrash>(),
-            //        nameof(EverydayUpdate) => serviceProvider.GetService<EverydayUpdate>(),
-            //        nameof(StatisticsUpdate) => serviceProvider.GetService<StatisticsUpdate>(),
-            //        nameof(CleanFiles) => serviceProvider.GetService<CleanFiles>(),
-            //        _ => serviceProvider.GetService<StatisticsUpdate>(),
-            //    };
-            //});
-            //// ***
-
-            //services.AddScheduler((sender, args) =>
-            //{
-            //    Console.Write(args.Exception.Message);
-            //    args.SetObserved();
-            //});
+            //Scheduled tasks
+            services.AddSingleton<IScheduledTask, ParseJob>();
+            services.AddScheduler((sender, args) =>
+            {
+                Console.Write(args.Exception.Message);
+                args.SetObserved();
+            });
 
             #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             app.UseDefaultFiles();
 
@@ -175,7 +152,17 @@ namespace HotlineKatalog
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
+
+            var webSocketOptions = new WebSocketOptions()
+            {
+                KeepAliveInterval = TimeSpan.FromSeconds(5),
+                ReceiveBufferSize = 4 * 1024
+            };
+
+            app.UseWebSockets(webSocketOptions);
+
+            app.Map("/webSocket", (_app) => _app.UseMiddleware<WebSocketManagerMiddleware>(serviceProvider.GetService<WebSocketMessageHandler>()));
 
             app.UseSwagger();
 

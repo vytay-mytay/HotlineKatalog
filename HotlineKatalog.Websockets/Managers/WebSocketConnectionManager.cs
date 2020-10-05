@@ -85,10 +85,10 @@ namespace HotlineKatalog.WebSockets.Managers
 
             _log.LogInformation("Open connection for WebSocket with id " + data.TokenId);
 
-            var userConnections = this.Get(w => w.Data.UserId == data.UserId);
-
-            if (userConnections.Count > 0)
-                userConnections.ForEach(w => w.Data = data);
+            //var userConnections = this.Get(w => w.Data.UserId == data.UserId);
+            //
+            //if (userConnections.Count > 0)
+            //    userConnections.ForEach(w => w.Data = data);
 
             Sockets.Add(new WSItem<ConnectedData> { Socket = socket, Data = data });
 

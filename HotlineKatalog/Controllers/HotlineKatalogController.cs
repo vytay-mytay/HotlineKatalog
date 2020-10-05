@@ -1,9 +1,7 @@
-using HotlineKatalog.Services.Interface;
+using HotlineKatalog.Services.Interfaces;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,7 +34,7 @@ namespace HotlineKatalog.Controllers
         [HttpGet]
         public async Task<IActionResult> GetChatUsers(string link)
         {
-            var test2 = await _parseService.Parse();
+            //var test2 = await _parseService.Parse();
 
             //WebResponse response = null;
             //StreamReader reader = null;
@@ -67,7 +65,7 @@ namespace HotlineKatalog.Controllers
 
             //var test2 = await GetContentFromTagAsync(test);
 
-            return Ok(test2);
+            return Ok();
         }
 
         private async Task<object> GetContentFromTagAsync(string html)

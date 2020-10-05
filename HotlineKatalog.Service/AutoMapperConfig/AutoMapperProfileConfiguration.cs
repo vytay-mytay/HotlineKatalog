@@ -1,3 +1,8 @@
+using HotlineKatalog.Domain.Entities;
+using HotlineKatalog.Models.ResponseModels;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+
 namespace HotlineKatalog.Services.AutoMapperConfig
 {
     public class AutoMapperProfileConfiguration : AutoMapper.Profile
@@ -10,9 +15,35 @@ namespace HotlineKatalog.Services.AutoMapperConfig
         protected AutoMapperProfileConfiguration(string profileName)
         : base(profileName)
         {
-            //CreateMap<UserProfileRequestModel, Profile>()
-            //    .ForMember(t => t.Id, opt => opt.Ignore())
-            //    .ForMember(t => t.User, opt => opt.Ignore());
+            CreateMap<Good, GoodResponseModel>()
+                .ForMember(t => t.Id, opt => opt.MapFrom(x => x.Id))
+                .ForMember(t => t.Category, opt => opt.MapFrom(x => x.Category))
+                .ForMember(t => t.Name, opt => opt.MapFrom(x => x.Name))
+                .ForMember(t => t.Prices, opt => opt.MapFrom(x => x.Prices))
+                .ForMember(t => t.Producer, opt => opt.MapFrom(x => x.Producer))
+                .ForMember(t => t.Specification, opt => opt.MapFrom(x => x.Specification));
+
+            CreateMap<Category, CategoryResponseModel>()
+                .ForMember(t => t.Id, opt => opt.MapFrom(x => x.Id))
+                .ForMember(t => t.Name, opt => opt.MapFrom(x => x.Name));
+
+            CreateMap<Producer, ProducerResponseModel>()
+                .ForMember(t => t.Id, opt => opt.MapFrom(x => x.Id))
+                .ForMember(t => t.Name, opt => opt.MapFrom(x => x.Name));
+
+            CreateMap<Shop, ShopResponseModel>()
+                .ForMember(t => t.Id, opt => opt.MapFrom(x => x.Id))
+                .ForMember(t => t.Name, opt => opt.MapFrom(x => x.Name));
+
+            CreateMap<Specification, SpecificationResponseModel>()
+                .ForMember(t => t.Specification, opt => opt.MapFrom(x => JsonConvert.DeserializeObject<Dictionary<string, string>>(x.Json)));
+
+            CreateMap<Price, PriceResponseModel>()
+                .ForMember(t => t.Id, opt => opt.MapFrom(x => x.Id))
+                .ForMember(t => t.Date, opt => opt.MapFrom(x => x.Date))
+                .ForMember(t => t.Shop, opt => opt.MapFrom(x => x.Shop))
+                .ForMember(t => t.Value, opt => opt.MapFrom(x => x.Value))
+                .ForMember(t => t.Url, opt => opt.Ignore());    // aftermap
 
             //CreateMap<Profile, UserProfileResponseModel>()
             //    .ForMember(t => t.Avatar, opt => opt.MapFrom(x => x.Avatar))

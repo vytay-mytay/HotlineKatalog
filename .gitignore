@@ -12,3 +12,6 @@
 /HotlineKatalog.Websockets/bin
 /HotlineKatalog/Logs
 /HotlineKatalog/.local-chromium
+/HotlineKatalog.ScheduledTasks/obj
+/HotlineKatalog.ScheduledTasks/bin
+/HotlineKatalog.DAL/bin

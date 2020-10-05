@@ -14,6 +14,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HotlineKatalog.DAL\HotlineKatalog.DAL.csproj" />
+    <ProjectReference Include="..\HotlineKatalog.Model\HotlineKatalog.Models.csproj" />
+    <ProjectReference Include="..\HotlineKatalog.ScheduledTasks\HotlineKatalog.ScheduledTasks.csproj" />
   </ItemGroup>
 
 </Project>

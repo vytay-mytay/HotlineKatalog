@@ -68,7 +68,6 @@ namespace HotlineKatalog.WebSockets.Middlewares
             if (!isTestConnection)
             {
                 try
-
                 {
                     var now = DateTime.UtcNow;
                 }

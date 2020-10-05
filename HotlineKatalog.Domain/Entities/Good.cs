@@ -17,6 +17,9 @@ namespace HotlineKatalog.Domain.Entities
         [MaxLength(30)]
         public string Name { get; set; }
 
+        [ForeignKey("Producer")]
+        public int ProducerId { get; set; }
+
         #endregion
 
         #region Navigation Properties
@@ -32,6 +35,9 @@ namespace HotlineKatalog.Domain.Entities
 
         [InverseProperty("Goods")]
         public virtual Category Category { get; set; }
+
+        [InverseProperty("Goods")]
+        public virtual Producer Producer { get; set; }
 
         #endregion
 
