@@ -1,4 +1,3 @@
-using AutoMapper;
 using HotlineKatalog.DAL.Abstract;
 using HotlineKatalog.Domain.Entities;
 using HotlineKatalog.Models.InternalModels;
@@ -21,13 +20,11 @@ namespace HotlineKatalog.Services.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly Random _random;
-        private readonly IMapper _mapper;
         private readonly IAddDBService _addDBService;
 
-        public ComfyParseService(IUnitOfWork unitOfWork, IMapper mapper, IAddDBService addDBService)
+        public ComfyParseService(IUnitOfWork unitOfWork, IAddDBService addDBService)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
             _addDBService = addDBService;
             _random = new Random();
         }
@@ -43,7 +40,6 @@ namespace HotlineKatalog.Services.Services
                                                         .FirstOrDefault();
 
             List<string> pageLinks = null;
-            //var response = new List<GoodResponseModel>();
 
             foreach (var category in shop.Categories)
             {
@@ -89,12 +85,6 @@ namespace HotlineKatalog.Services.Services
                             item.Specification = await GetSpecification(document.DocumentNode.Descendants(), shop.Tags.SpecificationTag);
 
                             var good = await _addDBService.AddToDB(item);
-
-                            //response.Add(_mapper.Map<Good, GoodResponseModel>(good, opt => opt.AfterMap((opt, desc) =>
-                            //{
-                            //    var priceUrl = opt.Shops.FirstOrDefault(x => x.ShopId == shop.Id).Url;
-                            //    desc.Prices.FirstOrDefault(x => x.Shop.Id == shop.Id).Url = priceUrl;
-                            //})));
                         }
                         pageUrl = await GetNextPageLink(page, shop.Tags.NextPageTag);
                     }
@@ -155,7 +145,7 @@ namespace HotlineKatalog.Services.Services
             // select from nodes
             // all nodel with class {nameTag}
             // take from every node InetText and replace {categoryName} and trim
-            var name = bodyTags.FirstOrDefault(x => x.HasClass(nameTag)).InnerHtml.Replace(categoryName, "").Replace("вбудовуваний", "").Trim();
+            var name = bodyTags.FirstOrDefault(x => x.HasClass(nameTag)).InnerText.Replace(categoryName, "").Replace("вбудовуваний", "").Trim().ToLower();
 
             return name;
         }

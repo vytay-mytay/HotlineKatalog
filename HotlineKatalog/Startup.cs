@@ -62,6 +62,7 @@ namespace HotlineKatalog
 
             services.AddTransient<IComfyParseService, ComfyParseService>();
             services.AddTransient<IAddDBService, AddDBService>();
+            services.AddTransient<AbstractParse, EldoradoParseService>();
             //services.AddScoped<IUserService, UserService>();
             //services.AddScoped<IChatService, ChatService>();
             //services.AddTransient<IImageService, ImageService>();

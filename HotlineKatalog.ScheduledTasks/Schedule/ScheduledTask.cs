@@ -6,13 +6,13 @@ namespace HotlineKatalog.ScheduledTasks.Schedule
     /// <summary>
     /// Task with schedule defined by Cron template 
     /// </summary>
-    public class ScheduledTask 
+    public class ScheduledTask
     {
         // Cron string pattern
         protected string Schedule;
 
         private CrontabSchedule _cronSchedule;
-        private DateTime _lastRunTime;
+        protected DateTime _lastRunTime;
         protected DateTime _nextRunTime;
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace HotlineKatalog.ScheduledTasks.Schedule
             if (Schedule == null)
                 throw new ArgumentException(nameof(Schedule));
 
-            if(_cronSchedule == null)
+            if (_cronSchedule == null)
                 _cronSchedule = CrontabSchedule.Parse(Schedule);
 
             _lastRunTime = _nextRunTime;

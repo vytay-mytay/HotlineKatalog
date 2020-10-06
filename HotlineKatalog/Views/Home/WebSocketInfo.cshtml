@@ -72,52 +72,19 @@
     </style>
 </head>
 <body>
-    <h2>WebSocket info</h2>
+    <h2>WebSocket</h2>
     <div>
-        <h3>Connection setup</h3>
-        <div>
-            @*// TODO : ADD PROJECT NAME AND DOCUMENTATION*@
-            <p><label>LOCAL - </label><span>ws://localhost:44330/webSocket</span></p>
-            <p><label>DEV - </label><span>wss://api.dev.hakayaonline.com:3312/webSocket</span></p>
-            <p><label>STAGE - </label><span>wss://api.stage.hakayaonline.com:3312/webSocket</span></p>
-        </div>
+        <p><label>LOCAL - </label><span>ws://localhost:44330/webSocket</span></p>
     </div>
-    <div>
-        <h3>List of all sockets</h3>
-        <div>
-            @*DOCUMENTATION LINK*@
-            <p><a href="https://docs.google.com/spreadsheets/d/1mfsgc1LJZN9xi0tnmOniS78vncbl-4dJu94dET19GVo/edit?usp=sharing" target="_blank">Events</a></p>
-        </div>
-    </div>
+    
     <div class="h-full row">
         <div class="col-6">
-            <h3>Connection example (js)</h3>
-            <pre>
-socket = new WebSocket(uri, access_token); //access_token without 'Bearer'
-
-socket.onopen = function (event) {
-var date = new Date();
-    console.log(date.toTimeString() + " opened connection to " + uri);
-};
-socket.onclose = function (event) {
-var date = new Date();
-    console.log(date.toTimeString() + " closed connection from " + uri);
-};
-socket.onmessage = function(event) {
-    console.log(event.data);
-};
-socket.onerror = function(event) {
-    console.log("error: " + event.data);
-};
-        </pre>
             <div>
                 <h3>Connection state</h3>
                 <input type="text" id="uri" placeholder="URI" />
-                <input type="text" id="accessToken" placeholder="Access token" />
                 <input type="button" id="connect" value="Connect" onclick="connect()" />
                 <input type="button" id="ping" value="Ping" />
                 <input type="button" id="disconnect" value="Disconnect" />
-                <textarea id="messageInput" placeholder="Type your message"></textarea>
                 <input type="button" id="sendButton" value="Send">
             </div>
         </div>
