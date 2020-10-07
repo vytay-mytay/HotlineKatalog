@@ -1,6 +1,6 @@
 ﻿namespace HotlineKatalog.Services.Interfaces
 {
-    interface IEldoradoParseService : IParseService
+    public interface IEldoradoParseService : IParseService
     {
     }
 }

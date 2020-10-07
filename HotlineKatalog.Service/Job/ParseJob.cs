@@ -1,7 +1,6 @@
 ﻿using HotlineKatalog.ScheduledTasks;
 using HotlineKatalog.ScheduledTasks.Schedule;
 using HotlineKatalog.Services.Interfaces;
-using HotlineKatalog.Services.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -33,16 +32,15 @@ namespace HotlineKatalog.Services.Job
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _lastRunTime = _nextRunTime;
-
             try
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    //var comfyParseService = scope.ServiceProvider.GetRequiredService<IComfyParseService>();
+                    var comfyParseService = scope.ServiceProvider.GetRequiredService<IComfyParseService>();
 
-                    //await comfyParseService.Parse();
+                    await comfyParseService.Parse();
 
-                    var eldoradoParseService = scope.ServiceProvider.GetRequiredService<AbstractParse>();
+                    var eldoradoParseService = scope.ServiceProvider.GetRequiredService<IEldoradoParseService>();
 
                     await eldoradoParseService.Parse();
                 }

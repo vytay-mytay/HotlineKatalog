@@ -17,13 +17,13 @@ namespace HotlineKatalog.Services.Interfaces
         /// <returns></returns>
         Task<IEnumerable<HtmlNode>> GetPageItems(string html, string goodUrlTag);
 
-        /// <summary>
-        /// Get next page link
-        /// </summary>
-        /// <param name="html"></param>
-        /// <param name="nextPageTag"></param>
-        /// <returns></returns>
-        Task<string> GetNextPageLink(string html, string nextPageTag);
+        ///// <summary>
+        ///// Get next page link
+        ///// </summary>
+        ///// <param name="html"></param>
+        ///// <param name="nextPageTag"></param>
+        ///// <returns></returns>
+        //Task<string> GetNextPageLink(string html, string nextPageTag);
 
         /// <summary>
         /// Get links of goods

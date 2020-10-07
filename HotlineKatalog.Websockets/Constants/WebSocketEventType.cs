@@ -25,5 +25,7 @@ namespace HotlineKatalog.WebSockets.Constants
         public const string UpdatedNotification = "updated_notification";
 
         public const string RemovedNotification = "removed_notification";
+
+        public const string PriceChange = "price_change";
     }
 }

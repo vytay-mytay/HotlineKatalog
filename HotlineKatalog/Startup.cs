@@ -49,12 +49,8 @@ namespace HotlineKatalog
 
             services.AddScoped<IDataContext>(provider => provider.GetService<DataContext>());
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            //services.AddSingleton<HashUtility>();
-            //services.AddSingleton<TemporaryDataManager>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            //services.AddSingleton<BrowserService>();
-            //services.AddScoped<IJWTService, JWTService>();
 
             #endregion
 
@@ -62,23 +58,8 @@ namespace HotlineKatalog
 
             services.AddTransient<IComfyParseService, ComfyParseService>();
             services.AddTransient<IAddDBService, AddDBService>();
-            services.AddTransient<AbstractParse, EldoradoParseService>();
-            //services.AddScoped<IUserService, UserService>();
-            //services.AddScoped<IChatService, ChatService>();
-            //services.AddTransient<IImageService, ImageService>();
-            //services.AddTransient<IPostService, PostService>();
-            //services.AddTransient<IFeedService, FeedService>();
-            //services.AddTransient<IDiaryService, DiaryService>();
-            //services.AddTransient<IContentService, ContentService>();
-            //services.AddTransient<ISettingsService, SettingsService>();
-            //services.AddTransient<IHashtagService, HashtagService>();
-            //services.AddTransient<IFollowingService, FollowingService>();
-            //services.AddTransient<ICommentService, CommentService>();
-            //services.AddTransient<ILikeService, LikeService>();
-            //services.AddTransient<ILibraryService, LibraryService>();
-            //services.AddTransient<IAdsService, AdsService>();
-            //services.AddTransient<IReportService, ReportService>();
-            //services.AddTransient<IStatisticsService, StatisticsService>();
+            services.AddTransient<IEldoradoParseService, EldoradoParseService>();
+            services.AddTransient<IHotlineKatalogService, HotlineKatalogService>();
 
             #endregion
 

@@ -16,6 +16,7 @@
     <ProjectReference Include="..\HotlineKatalog.DAL\HotlineKatalog.DAL.csproj" />
     <ProjectReference Include="..\HotlineKatalog.Model\HotlineKatalog.Models.csproj" />
     <ProjectReference Include="..\HotlineKatalog.ScheduledTasks\HotlineKatalog.ScheduledTasks.csproj" />
+    <ProjectReference Include="..\HotlineKatalog.Websockets\HotlineKatalog.Websockets.csproj" />
   </ItemGroup>
 
 </Project>

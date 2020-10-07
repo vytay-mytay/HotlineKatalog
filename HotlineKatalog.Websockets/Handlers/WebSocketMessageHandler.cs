@@ -54,6 +54,27 @@ namespace HotlineKatalog.WebSockets.Handlers
             }
         }
 
+        public async Task SendMessageToAllAsync(WebSocketEventResponseModel message)
+        {
+            var serializedMessage = JsonConvert.SerializeObject(message);
+
+            var socketsData = WebSocketConnectionManager.GetAll();
+
+            if (socketsData.Count > 0)
+            {
+                foreach (var socketData in socketsData)
+                {
+                    if (socketData.Socket.State != WebSocketState.Open)
+                    {
+                        _log.LogInformation($"WebSocket => socket {socketData.Data.TokenId} is " + Enum.GetName(typeof(WebSocketState), socketData.Socket.State));
+                        return;
+                    }
+
+                    await SendMessageAsync(socketData.Socket, serializedMessage);
+                }
+            }
+        }
+
         public override async Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, byte[] buffer)
         {
             var socketId = WebSocketConnectionManager.GetTokenId(socket);

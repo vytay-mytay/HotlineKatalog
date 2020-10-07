@@ -4,24 +4,50 @@ using HotlineKatalog.Models.InternalModels;
 using HotlineKatalog.Services.Interfaces;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
+using PuppeteerSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HotlineKatalog.Services.Services
 {
-    public class EldoradoParseService : AbstractParse
+    public class EldoradoParseService : IEldoradoParseService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAddDBService _addDBService;
+        private readonly Random _random;
 
-        public EldoradoParseService(IUnitOfWork unitOfWork, IAddDBService addDBService) : base()
+        public EldoradoParseService(IUnitOfWork unitOfWork, IAddDBService addDBService)
         {
             _unitOfWork = unitOfWork;
             _addDBService = addDBService;
+            _random = new Random();
         }
 
-        public override async Task<List<string>> GetLinks(IEnumerable<HtmlNode> bodyTags, string goodUrlTag)
+        public async Task<Browser> StartBrovser()
+        {
+            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                Headless = false
+            });
+
+            return browser;
+        }
+
+        public async Task<string> GetHtml(Browser brovser, string link)
+        {
+            var page = await brovser.NewPageAsync();
+            Thread.Sleep(_random.Next(3000, 5000));
+            await page.GoToAsync(link, timeout: 60000);
+            Thread.Sleep(_random.Next(5000, 10000));
+            var html = await page.GetContentAsync();
+            return html;
+        }
+
+        public async Task<List<string>> GetLinks(IEnumerable<HtmlNode> bodyTags, string goodUrlTag)
         {
             var links = bodyTags.Select(d => d.Descendants()
                                             .FirstOrDefault(c => c.HasClass(goodUrlTag))
@@ -32,7 +58,7 @@ namespace HotlineKatalog.Services.Services
             return links;
         }
 
-        public override async Task<string> GetName(IEnumerable<HtmlNode> bodyTags, string nameTag, string categoryName)
+        public async Task<string> GetName(IEnumerable<HtmlNode> bodyTags, string nameTag, string categoryName)
         {
             // select from nodes
             // all nodel with class {nameTag}
@@ -42,21 +68,26 @@ namespace HotlineKatalog.Services.Services
             return name;
         }
 
-        public override async Task<string> GetNextPageLink(string html, string nextPageTag)
+        public async Task<string> GetNextPageLink(string html, string nextPageTag, int i)
         {
             // click on div with "to-left"
 
             var document = new HtmlDocument();
             document.LoadHtml(html);
 
-            var nextPage = document.DocumentNode.Descendants().FirstOrDefault(x => x.HasClass(nextPageTag));
+            var link = "";
 
-            var link = nextPage.Descendants().FirstOrDefault(f => f.Attributes.Any(a => a.Name == "href")).GetAttributeValue("href", string.Empty);
+            if (document.DocumentNode.Descendants().Any(x => x.HasClass("to-left")))
+            {
+                var nextPage = document.DocumentNode.Descendants().FirstOrDefault(x => x.HasClass(nextPageTag) && !x.HasClass("active") && x.InnerText == i.ToString());
+
+                link = nextPage.Descendants().FirstOrDefault(f => f.Attributes.Any(a => a.Name == "href")).GetAttributeValue("href", string.Empty);
+            }
 
             return link;
         }
 
-        public override async Task<IEnumerable<HtmlNode>> GetPageItems(string html, string goodUrlTag)
+        public async Task<IEnumerable<HtmlNode>> GetPageItems(string html, string goodUrlTag)
         {
             var document = new HtmlDocument();
             document.LoadHtml(html);
@@ -65,7 +96,7 @@ namespace HotlineKatalog.Services.Services
             return bodyTags;
         }
 
-        public override async Task<int> GetPrice(IEnumerable<HtmlNode> bodyTags, string priceTag)
+        public async Task<int> GetPrice(IEnumerable<HtmlNode> bodyTags, string priceTag)
         {
             // get attribute "content" with price
             var price = int.Parse(bodyTags.FirstOrDefault(d => d.HasClass(priceTag) && d.Attributes.Any(a => a.Name == "content"))
@@ -74,23 +105,16 @@ namespace HotlineKatalog.Services.Services
             return price;
         }
 
-        public override async Task<Dictionary<string, string>> GetSpecification(IEnumerable<HtmlNode> bodyTags, string specificationTag)
+        public async Task<Dictionary<string, string>> GetSpecification(IEnumerable<HtmlNode> bodyTags, string specificationTag)
         {
-            // li with 2 spans and one of it with class "attribute-val"
-
-            // specificationTag == general-characteristic
-
-            //var list = bodyTags.Where(d => d.HasClass(specificationTag) && d.Name == "li" && d.ChildNodes.All(c => c.Name == "span"));
-
-            var test = bodyTags.Select(b => b.ChildNodes.FirstOrDefault(f => f.HasClass(specificationTag)));
-
-            //var test1 = test.Where(t => t.Name == "li").SelectMany(t => t.ChildNodes.Where(c => c.Name == "span"));
-
-            var test1 = test.Select(t => t.ChildNodes.FirstOrDefault(c =>c!= null && c.Name == "li" && c.ChildNodes.All(a => a.Name == "span")));
+            var specificationNodes = bodyTags.SelectMany(b => b.ChildNodes
+                                                                .Where(f => f.HasClass(specificationTag)))
+                                                                .SelectMany(t => t.ChildNodes
+                                                                                    .Where(c => c != null && c.Name == "li" && c.ChildNodes.All(a => a.Name == "span")));
 
             var response = new Dictionary<string, string>();
 
-            foreach (var item in test1)
+            foreach (var item in specificationNodes)
             {
                 var key = item.ChildNodes.FirstOrDefault(x => !x.HasClass("attribute-val")).InnerText.Trim();
                 var value = item.ChildNodes.FirstOrDefault(x => x.HasClass("attribute-val")).InnerText.Trim();
@@ -110,30 +134,10 @@ namespace HotlineKatalog.Services.Services
                 response.Add(key, value);
             }
 
-            //foreach (var item in list)
-            //{
-            //    var key = item.Descendants().FirstOrDefault(x => x.HasClass("title")).InnerText.Trim();
-            //    var value = item.Descendants().FirstOrDefault(x => x.HasClass("value")).InnerText.Trim();
-
-            //    var canNotAdd = false;
-
-            //    if (response.Any(x => x.Key == key))
-            //        canNotAdd = true;
-
-            //    while (canNotAdd)
-            //    {
-            //        key += '1';
-            //        if (!response.Any(x => x.Key == key))
-            //            canNotAdd = false;
-            //    }
-
-            //    response.Add(key, value);
-            //}
-
             return response;
         }
 
-        public override async Task Parse()
+        public async Task Parse()
         {
             var brovser = await StartBrovser();
 
@@ -149,13 +153,13 @@ namespace HotlineKatalog.Services.Services
             {
                 var doing = true;
                 var pageUrl = category.Url;
+                //var pageUrl = "https://eldorado.ua/uk/holodilniki/c1061560/page=25/";
 
                 int i = 1;
 
                 while (doing)
                 {
-                    //string page = await GetHtml(brovser, pageUrl);
-                    string page = await GetHtml(@"C:\Users\Шашлык с пивасом\source\repos\vytay-mytay\hakayaonline-backend\123.html");
+                    string page = await GetHtml(brovser, pageUrl);
 
                     if (page.PadLeft(100).Contains("NOINDEX, NOFOLLOW"))
                         break;
@@ -174,8 +178,11 @@ namespace HotlineKatalog.Services.Services
 
                         foreach (var itemLink in pageLinks)
                         {
-                            //var itemHtml = await GetHtml(brovser, itemLink);
-                            var itemHtml = await GetHtml(@"C:\Users\Шашлык с пивасом\source\repos\vytay-mytay\hakayaonline-backend\1234.html");
+                            var link = itemLink;
+                            if (!itemLink.StartsWith(shop.Url))
+                                link = itemLink.Insert(0, shop.Url);
+
+                            var itemHtml = await GetHtml(brovser, link);
 
                             var document = new HtmlDocument();
                             document.LoadHtml(itemHtml);
@@ -197,7 +204,10 @@ namespace HotlineKatalog.Services.Services
 
                         i++;
 
-                        pageUrl = await GetNextPageLink(page, shop.Tags.NextPageTag);
+                        pageUrl = await GetNextPageLink(page, shop.Tags.NextPageTag, i);
+
+                        if (pageUrl == null || pageUrl.Any())
+                            doing = false;
                     }
                     else
                         doing = false;
