@@ -124,7 +124,7 @@ namespace HotlineKatalog.WebSockets.Middlewares
                             {
                                 try
                                 {
-                                    await _webSocketHandler.Disconnect(socket);
+                                    //await _webSocketHandler.Disconnect(socket);
                                 }
                                 catch (Exception ex)
                                 {

@@ -110,6 +110,7 @@ namespace HotlineKatalog.Services.Services
                                                                         && !x.Descendants().Any(y => y.HasClass("js-more-button"))  // w/o "js-more-button" => "Детальныше" (cant buy)
                                                                         && !x.HasClass("_empty")                                    // w/o "_empty" => empty blocks
                                                                         && !x.HasClass("news-item")                                 // w/o "news-item" => news
+                                                                        && !x.HasClass("products-list__item_banner")                // w/o "news-item" => news
                                                                     ).ToList();
 
             return bodyTags;

@@ -32,22 +32,28 @@ namespace HotlineKatalog.Services.Job
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _lastRunTime = _nextRunTime;
-            try
+
+            using (var scope = _serviceProvider.CreateScope())
             {
-                using (var scope = _serviceProvider.CreateScope())
+                var comfyParseService = scope.ServiceProvider.GetRequiredService<IComfyParseService>();
+                var eldoradoParseService = scope.ServiceProvider.GetRequiredService<IEldoradoParseService>();
+                try
                 {
-                    var comfyParseService = scope.ServiceProvider.GetRequiredService<IComfyParseService>();
-
                     await comfyParseService.Parse();
-
-                    var eldoradoParseService = scope.ServiceProvider.GetRequiredService<IEldoradoParseService>();
-
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"{LOG_IDENTIFIER} => Exception.Message: {ex.Message}");
+                }
+                
+                try
+                {
                     await eldoradoParseService.Parse();
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{LOG_IDENTIFIER} => Exception.Message: {ex.Message}");
+                catch (Exception ex)
+                {
+                    _logger.LogError($"{LOG_IDENTIFIER} => Exception.Message: {ex.Message}");
+                }
             }
         }
     }

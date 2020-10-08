@@ -39,23 +39,23 @@ namespace HotlineKatalog.WebSockets.Abstract
         /// </summary>
         /// <param name="socket">Disconnected socket</param>
         /// <returns>Task</returns>
-        public virtual async Task Disconnect(WebSocket socket)
-        {
-            int? tokenId = WebSocketConnectionManager.GetTokenId(socket);
-            if (tokenId != null)
-            {
-                try
-                {
-                    _log.LogInformation("WebSocketHandler.OnDisconnected -> WebSocket with id {" + tokenId + "} disconected");
-                    await WebSocketConnectionManager.RemoveSocketAsync(socket, WebSocketCloseStatus.NormalClosure, "Connection closed");
-                }
-                catch (Exception ex)
-                {
-                    _log.LogError("WebSocketHandler.OnDisconnected -> Exception occured during connection closing. Connection id: " + tokenId + ". Exception message: " + ex.Message);
-                    WebSocketConnectionManager.RemoveSocket(socket);
-                }
-            }
-        }
+        //public virtual async Task Disconnect(WebSocket socket)
+        //{
+        //    int? tokenId = WebSocketConnectionManager.GetTokenId(socket);
+        //    if (tokenId != null)
+        //    {
+        //        try
+        //        {
+        //            _log.LogInformation("WebSocketHandler.OnDisconnected -> WebSocket with id {" + tokenId + "} disconected");
+        //            await WebSocketConnectionManager.RemoveSocketAsync(socket, WebSocketCloseStatus.NormalClosure, "Connection closed");
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            _log.LogError("WebSocketHandler.OnDisconnected -> Exception occured during connection closing. Connection id: " + tokenId + ". Exception message: " + ex.Message);
+        //            WebSocketConnectionManager.RemoveSocket(socket);
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// send message into specific socket

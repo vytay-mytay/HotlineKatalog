@@ -47,12 +47,10 @@ namespace HotlineKatalog.Services.Services
                 FilterType.Category => isAsc ? allGoods.OrderBy(x => x.CategoryId) : allGoods.OrderByDescending(x => x.CategoryId)
             };
 
-            //var posts = orderedGoods.Skip(model.Offset).Take(model.Limit).ToList();
             var goodIds = orderedGoods.Skip(model.Offset).Take(model.Limit);
 
             var goods = _unitOfWork.Repository<Good>().Get(x => goodIds.Select(x => x.Id).Contains(x.Id))
                                                         .Include(x => x.Category)
-                                                        //.Include(x=>x.Specification)
                                                         .Include(x => x.Producer)
                                                         .Include(x => x.Shops)
                                                         .IncludeFilter(x => x.Prices.OrderByDescending(c => c.Date).FirstOrDefault())
@@ -76,7 +74,12 @@ namespace HotlineKatalog.Services.Services
             if (good == null)
                 return new GoodResponseModel();
 
-            var response = _mapper.Map<GoodResponseModel>(good);
+            var response = _mapper.Map<Good, GoodResponseModel>(good, opt => opt.AfterMap((src, dest) =>
+            {
+                var urls = src.Prices.Select(p => new { Id = p.Id, Url = p.Good.Shops.FirstOrDefault(s => s.GoodId == p.GoodId).Url });
+
+                dest.Prices.Select(x => x.Url = urls.FirstOrDefault(u => u.Id == x.Id).Url).ToList();
+            }));
 
             return response;
         }

@@ -121,12 +121,12 @@ namespace HotlineKatalog.WebSockets.Handlers
                 try
                 {
                     _log.LogInformation("ChatMessageHandler.RemoveWebSocketConnection -> Close connection for WebSocket with id " + tokenId);
-                    await WebSocketConnectionManager.RemoveSocketAsync(webSocket, WebSocketCloseStatus.PolicyViolation, "Invalid connection");
+                    //await WebSocketConnectionManager.RemoveSocketAsync(webSocket, WebSocketCloseStatus.PolicyViolation, "Invalid connection");
                 }
                 catch (Exception ex)
                 {
                     _log.LogError("ChatMessageHandler.RemoveWebSocketConnection -> Exception occured during connection closing. Connection id: " + tokenId + ". Exception message: " + ex.Message);
-                    WebSocketConnectionManager.RemoveSocket(webSocket);
+                    //WebSocketConnectionManager.RemoveSocket(webSocket);
                 }
             }
         }
@@ -145,33 +145,33 @@ namespace HotlineKatalog.WebSockets.Handlers
             return result;
         }
 
-        public override async Task Disconnect(WebSocket socket)
-        {
-            // Get socket
-            var socketData = WebSocketConnectionManager.Get(x => x.Socket == socket)
-                .FirstOrDefault();
+        //public override async Task Disconnect(WebSocket socket)
+        //{
+        //    // Get socket
+        //    var socketData = WebSocketConnectionManager.Get(x => x.Socket == socket)
+        //        .FirstOrDefault();
 
-            if (socketData != null)
-            {
-                try
-                {
-                    _log.LogInformation("WebSocketHandler.OnDisconnected -> WebSocket with id {" + socketData.Data.TokenId + "} disconected");
-                    await WebSocketConnectionManager.RemoveSocketAsync(socket, WebSocketCloseStatus.NormalClosure, "Connection closed");
-                }
-                catch (Exception ex)
-                {
-                    _log.LogError("WebSocketHandler.OnDisconnected -> Exception occured during connection closing. Connection id: " + socketData.Data.TokenId + ". Exception message: " + ex.Message);
-                    WebSocketConnectionManager.RemoveSocket(socket);
-                }
-            }
-        }
+        //    if (socketData != null)
+        //    {
+        //        try
+        //        {
+        //            _log.LogInformation("WebSocketHandler.OnDisconnected -> WebSocket with id {" + socketData.Data.TokenId + "} disconected");
+        //            await WebSocketConnectionManager.RemoveSocketAsync(socket, WebSocketCloseStatus.NormalClosure, "Connection closed");
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            _log.LogError("WebSocketHandler.OnDisconnected -> Exception occured during connection closing. Connection id: " + socketData.Data.TokenId + ". Exception message: " + ex.Message);
+        //            WebSocketConnectionManager.RemoveSocket(socket);
+        //        }
+        //    }
+        //}
 
-        public async Task Disconnect(int userId)
-        {
-            var previousConnections = WebSocketConnectionManager.GetSocketsByUserId(userId);
-            foreach (var item in previousConnections)
-                await Disconnect(item);
-        }
+        //public async Task Disconnect(int userId)
+        //{
+        //    var previousConnections = WebSocketConnectionManager.GetSocketsByUserId(userId);
+        //    foreach (var item in previousConnections)
+        //        await Disconnect(item);
+        //}
 
         public List<WSItem<IWSItem>> GetAll()
         {

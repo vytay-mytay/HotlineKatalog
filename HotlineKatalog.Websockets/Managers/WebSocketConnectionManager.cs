@@ -69,7 +69,7 @@ namespace HotlineKatalog.WebSockets.Managers
                 try
                 {
                     string desc = "WebSocket connection with id" + data.TokenId + " was closed because this user opened new connection";
-                    await RemoveSocketAsync(currentSocket, WebSocketCloseStatus.NormalClosure, desc);
+                    //await RemoveSocketAsync(currentSocket, WebSocketCloseStatus.NormalClosure, desc);
                     _log.LogInformation("WebSocketConnectionManager.AddSocket -> " + desc);
                 }
                 catch (ArgumentException ex)
@@ -116,34 +116,34 @@ namespace HotlineKatalog.WebSockets.Managers
                 {
                     try
                     {
-                        await socket.CloseAsync(closeStatus: status,
-                                                statusDescription: description,
-                                                cancellationToken: CancellationToken.None);
+                        //await socket.CloseAsync(closeStatus: status,
+                        //                        statusDescription: description,
+                        //                        cancellationToken: CancellationToken.None);
                     }
                     catch (WebSocketException ex)
                     {
-                        _log.LogError("WebSocketConnectionManager.RemoveSocket -> Exception occured during connection closing. Connection id: " + tokenId + ". Exception message: " + ex.Message + ". WebSocket state - " + Enum.GetName(typeof(WebSocketState), socket.State));
-
-                        Sockets.Where(w => w.Socket == socket);
-
-                        if (this.GetSocketDataByTokenId((int)tokenId) == null)
-                            _log.LogInformation("WebSocketConnectionManager.RemoveSocket -> All connections with id {" + tokenId + "} have been closed.");
-
-                        throw new ArgumentException("WebSocketConnectionManager.RemoveSocket -> Exception occured during connection closing. Connection id: " + tokenId + ". Exception message: " + ex.Message);
+                        //_log.LogError("WebSocketConnectionManager.RemoveSocket -> Exception occured during connection closing. Connection id: " + tokenId + ". Exception message: " + ex.Message + ". WebSocket state - " + Enum.GetName(typeof(WebSocketState), socket.State));
+                        //
+                        //Sockets.Where(w => w.Socket == socket);
+                        //
+                        //if (this.GetSocketDataByTokenId((int)tokenId) == null)
+                        //    _log.LogInformation("WebSocketConnectionManager.RemoveSocket -> All connections with id {" + tokenId + "} have been closed.");
+                        //
+                        //throw new ArgumentException("WebSocketConnectionManager.RemoveSocket -> Exception occured during connection closing. Connection id: " + tokenId + ". Exception message: " + ex.Message);
                     }
                 }
 
-                Sockets.RemoveWhere(w => w.Socket == socket);
+                //Sockets.RemoveWhere(w => w.Socket == socket);
 
-                if (this.GetSocketDataByTokenId((int)tokenId) == null)
-                    _log.LogInformation("WebSocketConnectionManager.RemoveSocket -> All connections with id {" + tokenId + "} have been closed.");
+                //if (this.GetSocketDataByTokenId((int)tokenId) == null)
+                //    _log.LogInformation("WebSocketConnectionManager.RemoveSocket -> All connections with id {" + tokenId + "} have been closed.");
             }
         }
 
         // remove socket
         public void RemoveSocket(WebSocket socket)
         {
-            Sockets.RemoveWhere(w => w.Socket == socket);
+            //Sockets.RemoveWhere(w => w.Socket == socket);
         }
     }
 }

@@ -1,7 +1,9 @@
-﻿using HotlineKatalog.DAL.Abstract;
+﻿using AutoMapper;
+using HotlineKatalog.DAL.Abstract;
 using HotlineKatalog.Domain.Entities;
 using HotlineKatalog.Models.Enums;
 using HotlineKatalog.Models.InternalModels;
+using HotlineKatalog.Models.ResponseModels;
 using HotlineKatalog.Services.Interfaces;
 using HotlineKatalog.WebSockets.Constants;
 using HotlineKatalog.WebSockets.Handlers;
@@ -19,11 +21,13 @@ namespace HotlineKatalog.Services.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly WebSocketMessageHandler _messageHandler;
+        private readonly IMapper _mapper;
 
-        public AddDBService(IUnitOfWork unitOfWork, WebSocketMessageHandler messageHandler)
+        public AddDBService(IUnitOfWork unitOfWork, WebSocketMessageHandler messageHandler, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _messageHandler = messageHandler;
+            _mapper = mapper;
         }
 
         public async Task<Good> AddToDB(PriceInternalModel priceInternal)
@@ -77,25 +81,24 @@ namespace HotlineKatalog.Services.Services
                 }
                 else if (good.Shops.Any(x => x.ShopId == priceInternal.Shop.Id))
                 {
-                    var sendType = Check(good, price.Value);
-
-                    switch (sendType)
+                    var message = new MessageResponseModel()
                     {
-                        case SendType.Up:
-                            await _messageHandler.SendMessageToAllAsync(new WebSocketEventResponseModel()
-                            {
-                                EventType = WebSocketEventType.PriceChange,
-                                Data = new { Change = "Up", OldValue = good.Prices.FirstOrDefault().Value, NewValue = price.Value, GoodId = good.Id, ShopId = priceInternal.Shop.Id }
-                            });
-                            break;
-                        case SendType.Down:
-                            await _messageHandler.SendMessageToAllAsync(new WebSocketEventResponseModel()
-                            {
-                                EventType = WebSocketEventType.PriceChange,
-                                Data = new { Change = "Down", OldValue = good.Prices.FirstOrDefault().Value, NewValue = price.Value, GoodId = good.Id, ShopId = priceInternal.Shop.Id }
-                            });
-                            break;
-                    }
+                        Type = Check(good, price.Value),
+                        Good = _mapper.Map<Good, GoodResponseModel>(good, opt => opt.AfterMap((src, dest) =>
+                         {
+                             var urls = src.Prices.Select(p => new { Id = p.Id, Url = p.Good.Shops.FirstOrDefault(s => s.GoodId == p.GoodId).Url });
+
+                             dest.Prices.Select(x => x.Url = urls.FirstOrDefault(u => u.Id == x.Id).Url).ToList();
+                         })),
+                        NewValue = price.Value
+                    };
+
+                    if (message.Type != SendType.NotChange)
+                        await _messageHandler.SendMessageToAllAsync(new WebSocketEventResponseModel()
+                        {
+                            EventType = WebSocketEventType.PriceChange,
+                            Data = message
+                        });
 
                     good.Prices.Add(price);
                 }
