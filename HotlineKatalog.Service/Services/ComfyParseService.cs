@@ -87,6 +87,7 @@ namespace HotlineKatalog.Services.Services
                             var good = await _addDBService.AddToDB(item);
                         }
                         pageUrl = await GetNextPageLink(page, shop.Tags.NextPageTag);
+                        doing = false;
                     }
                     else
                         doing = false;

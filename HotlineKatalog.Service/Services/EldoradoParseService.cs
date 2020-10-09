@@ -153,7 +153,6 @@ namespace HotlineKatalog.Services.Services
             {
                 var doing = true;
                 var pageUrl = category.Url;
-                //var pageUrl = "https://eldorado.ua/uk/holodilniki/c1061560/page=25/";
 
                 int i = 1;
 
@@ -188,6 +187,9 @@ namespace HotlineKatalog.Services.Services
                             document.LoadHtml(itemHtml);
 
                             if (itemHtml.PadLeft(100).Contains("NOINDEX, NOFOLLOW"))
+                                continue;
+
+                            if (itemHtml.Contains("not-found-container"))
                                 continue;
 
                             item.Url = itemLink;

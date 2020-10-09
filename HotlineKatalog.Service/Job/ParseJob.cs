@@ -37,6 +37,7 @@ namespace HotlineKatalog.Services.Job
             {
                 var comfyParseService = scope.ServiceProvider.GetRequiredService<IComfyParseService>();
                 var eldoradoParseService = scope.ServiceProvider.GetRequiredService<IEldoradoParseService>();
+                
                 try
                 {
                     await comfyParseService.Parse();
@@ -45,7 +46,7 @@ namespace HotlineKatalog.Services.Job
                 {
                     _logger.LogError($"{LOG_IDENTIFIER} => Exception.Message: {ex.Message}");
                 }
-                
+
                 try
                 {
                     await eldoradoParseService.Parse();

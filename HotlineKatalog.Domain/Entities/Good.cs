@@ -14,7 +14,7 @@ namespace HotlineKatalog.Domain.Entities
         [ForeignKey("Category")]
         public int CategoryId { get; set; }
 
-        [MaxLength(30)]
+        [MaxLength(100)]
         public string Name { get; set; }
 
         [ForeignKey("Producer")]
